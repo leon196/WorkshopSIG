@@ -7,7 +7,7 @@ struct ParticleData { float3 position, velocity, seed; };
 
 RWStructuredBuffer<ParticleData> _Particles;
 
-uniform float _Count, _TimeElapsed, _TimeDelta, _Speed, _Friction, _NoiseScale, _BlendCurl, _BlendGravity, _BlendTarget;
+uniform float _Count, _Radius, _TimeElapsed, _TimeDelta, _Speed, _Friction, _NoiseScale, _BlendCurl, _BlendGravity, _BlendTarget;
 uniform float4x4 _MatrixWorld, _MatrixLocal;
 
 
@@ -19,6 +19,19 @@ void particle (uint3 id : SV_DispatchThreadID)
 	float3 velocity = particle.velocity;
 	float3 target = float3(0,0,0);
 	float3 offset = float3(0,0,0);
+
+	float3 follow = float3(0,0,0);
+	float3 avoid = float3(0,0,0);
+	float collideRadius = .01;
+	for (float index = _Count; index > 0.0; --index) {
+		if (index != id.x) {
+			float3 other = _Particles[index].position;
+			float dist = length(position - other);
+			float3 dir = normalize(position - other);
+			avoid -= dir * smoothstep(collideRadius*2., collideRadius, dist);
+		}
+	}
+	offset += avoid;
 
 	// Curl 
 	float3 seed = position * _NoiseScale + particle.seed;

@@ -4,6 +4,10 @@
 	{
 		_MainTex ("Texture", 2D) = "white" {}
 		_Radius ("Radius", Float) = 0.1
+		_Range ("Range", Float) = 5
+		_Height ("Height", Float) = 0.2
+		_GrowRangeMin ("_GrowRangeMin", Float) = 2
+		_GrowRangeMax ("_GrowRangeMax", Float) = 1
 	}
 	SubShader
 	{
@@ -75,8 +79,8 @@
 				//float3 up = normalize(cross(forward, right));
 				float3 up = float3(0,1,0);
 
-				o.vertex.xyz += right * v.uv.x * _Radius * (1.0-y);
-				o.vertex.xyz += up * y * _Radius * 8.0 * grow;
+				o.vertex.xyz += right * v.uv.x * _Radius * (1.0-y) * grow;
+				o.vertex.xyz += up * y * _Height * grow;
 
 				o.color = float4(0,y,0,1);
 
