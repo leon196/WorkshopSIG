@@ -40,7 +40,7 @@
 				float4 color : COLOR;
 			};
 
-			sampler2D _MainTex;
+			sampler2D _MainTex, _GrassMap;
 			float4 _MainTex_ST;
 			float3 _Target;
 			float _Range, _Height, _Radius, _Speed, _GrowRangeMin, _GrowRangeMax;
@@ -60,15 +60,17 @@
 				o.vertex.xz = float2(cos(a),sin(a));
 
 				// distribute random on a plane
-				o.vertex.x = rand(v.vertex.xy) * 2. - 1.;
-				o.vertex.z = rand(v.vertex.xz) * 2. - 1.;
+				float2 uv = float2(rand(v.vertex.xy), rand(v.vertex.xz));
+				o.vertex.x = uv.x * 2. - 1.;
+				o.vertex.z = uv.y * 2. - 1.;
 				o.vertex.y = 0;
 
 				o.vertex.xz *= _Range;
 
 				float y = v.uv.y * 0.5 + 0.5;
 
-				float grow = smoothstep(_GrowRangeMin, _GrowRangeMax, length(o.vertex.xyz-_Target));
+				// float grow = smoothstep(_GrowRangeMin, _GrowRangeMax, length(o.vertex.xyz-_Target));
+				float grow = tex2Dlod(_GrassMap, float4(uv, 0, 0)).r;
 
 				a = TAU * noiseIQ(o.vertex.xyz * 4.);
 				o.vertex.xz += float2(cos(a),sin(a)) * y * .2 * grow;

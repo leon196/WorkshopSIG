@@ -7,7 +7,7 @@ public class Geometry : MonoBehaviour {
 	public int count = 10000;
 	public Vector2 segments = Vector2.one;
 
-	void Start () {
+	public void Start () {
 		Vector3[] positions = new Vector3[count];
 		for (int index = 0; index < count; ++index) positions[index] = Random.onUnitSphere * 100f;
 		GetComponent<MeshFilter>().mesh = Geometry.Particles(positions, null, null, segments.x, segments.y);
