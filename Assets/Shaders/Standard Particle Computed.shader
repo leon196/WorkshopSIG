@@ -30,7 +30,7 @@ Shader "Leon/Standard Particle Computed"
         fixed4 _Color;
 
         #ifdef SHADER_API_D3D11
-        struct PointData { float3 position, velocity; };
+        struct PointData { float3 position, velocity, seed; };
         StructuredBuffer<PointData> _Particles;
 
         #endif

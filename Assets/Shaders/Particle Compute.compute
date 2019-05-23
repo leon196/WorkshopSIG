@@ -22,8 +22,8 @@ void particle (uint3 id : SV_DispatchThreadID)
 
 	// Curl 
 	float3 seed = position * _NoiseScale + particle.seed;
-	rotation2D(seed.xz, _TimeElapsed*.1);
-	rotation2D(seed.yz, _TimeElapsed*.5);
+	rotation2D(seed.xz, _TimeElapsed*.01);
+	rotation2D(seed.yz, _TimeElapsed*.05);
 	float salty = noiseIQ(seed)*2.-1.;
 	float sweety = noiseIQ(seed+float3(1.64,5.579,9.5468))*2.-1.;
 	float curry = noiseIQ(seed+float3(524.5687,95.546,481.5498))*2.-1.;
