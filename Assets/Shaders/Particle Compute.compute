@@ -1,0 +1,102 @@
+﻿#pragma kernel particle
+#pragma kernel trail
+
+#include "UnityCG.cginc"
+#include "common.cginc"
+
+struct PointData { float3 position, velocity, info, seed; };
+struct TrailData { float3 position; };
+
+RWStructuredBuffer<PointData> _Particles;
+RWStructuredBuffer<TrailData> _Trails;
+
+uniform float _TimeElapsed, _Segments, _Speed, _Friction, _NoiseScale, _TrailDamping, _EmitterRadius, _BlendCurl, _BlendAttract, _BlendKinect, _BlendTwist, _BlendInitial, _ResetBuffer, _BlendGravity, _MorphSphere, _TimeDelta;
+uniform float4x4 _MatrixWorld, _MatrixLocal;
+
+
+float getWave (int x) {
+	// float wave = .5+.5*sin(_Time.y * .5);
+	// float wave = fmod(_Time.y * .05 + x * .01, 1.);
+	// float wave = fmod(_Time.y * .05 + x * .01, 1.);
+	float wave = sin((_Time.y * .5 + x * .1)*TAU);
+	// wave *= clamp(dot(normal, wind), 0., 1.);
+	// wave = smoothstep(.9, 1., wave);
+	return wave;
+}
+
+[numthreads(8,1,1)]
+void particle (uint3 id : SV_DispatchThreadID)
+{
+	PointData particle = _Particles[id.x];
+	float3 position = particle.position;
+	float3 velocity = particle.velocity;
+	float3 target = float3(0,0,0);//mul(_MatrixWorld, float4(0,0,0, 1)).xyz;
+	float3 offset = float3(0,0,0);
+
+	float2 uv = float2(fmod(id.x, 512), floor(id.x/512));
+	// respawn = range;
+	// float cosy = noiseIQ(position);
+	float3 seed = position * _NoiseScale;
+	rotation2D(seed.xz, _TimeElapsed*.1);
+	rotation2D(seed.yz, _TimeElapsed*.5);
+	// wave = smoothstep(.9, 1.,  noiseIQ(seed+float3(30.,41.,59.)));
+	float salty = noiseIQ(seed)*2.-1.;
+	float sweety = noiseIQ(seed+float3(1.64,5.579,9.5468))*2.-1.;
+	float curry = noiseIQ(seed+float3(524.5687,95.546,481.5498))*2.-1.;
+	// offset.xz += wave * normalize(position.xz) * .5;
+	offset += float3(salty, curry, sweety) * _BlendCurl;
+
+	float3 _Center = float3(0,0,0);
+
+	// target = mix(target, normalize(position - _Center) + _Center, _MorphSphere);
+
+	offset.y += _BlendGravity;
+	// offset.y += .05;
+	// offset += wave * normalize(wind) * .5;
+	// float3 kinectDir = normalize(_PalmPositionLeft - position + .0001);
+	// offset += rangeLeft * kinectDir * smoothstep(.0, .1, length(_PalmPositionLeft - position)) * _BlendKinect * mix(1.0, -1.0, _BlendAttract);
+	// kinectDir = normalize(_PalmPositionRight - position + .0001);
+	// offset += rangeRight * kinectDir * smoothstep(.0, .1, length(_PalmPositionRight - position)) * _BlendKinect * mix(1.0, -1.0, _BlendAttract);
+	// offset += _PalmDirectionLeft * rangeLeft;
+	// offset += _PalmDirectionRight * rangeRight;
+	// offset += normalize(position) * wave;
+
+	position -= _Center;
+	rotation2D(position.xz, .1 * _BlendTwist);
+	position += _Center;
+	float l = length(target-position);
+	if (l > .01) {
+		offset += normalize(target-position) * smoothstep(.0, .1, l) * _BlendInitial;
+		// position = mix(position, target, respawn);
+		// velocity *= (1.-respawn);
+	}
+
+	offset.y += smoothstep(0.1, 0.0, position.y);
+
+	velocity = velocity * _Friction + offset * _Speed * _TimeDelta;
+	position += velocity;
+
+	_Particles[id.x].velocity = velocity;
+	_Particles[id.x].position = position;
+	// _Particles[id.x].info = float3(respawn,0,0);
+}
+
+[numthreads(8,1,1)]
+void trail (uint3 id : SV_DispatchThreadID)
+{
+	int ix = floor(id.x/_Segments);
+	if (fmod(id.x, _Segments) == 0.) {
+		_Trails[id.x].position = _Particles[ix].position;
+	} else {
+		// if (_Particles[ix].info.x > 0.5) {
+		// 	_Trails[id.x].position = _Particles[ix].position;
+		// } else {
+			if (length(_Trails[id.x].position-_Trails[id.x-1].position) > 0.01) {
+				_Trails[id.x].position = lerp(_Trails[id.x].position, _Trails[id.x-1].position, _TrailDamping);
+			}
+			// if (length(_Trails[id.x].position-_Particles[ix].position) > 0.01) {
+			// 	_Trails[id.x].position = lerp(_Trails[id.x].position, _Particles[ix].position, _ResetBuffer);
+			// }
+		// }
+	}
+}
