@@ -38,8 +38,6 @@
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
 
-			#define TAU 6.28
-			
 			v2f vert (appdata v)
 			{
 				v2f o;

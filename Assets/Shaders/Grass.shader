@@ -3,6 +3,7 @@
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
+		_Radius ("Radius", Float) = 0.1
 	}
 	SubShader
 	{
@@ -38,10 +39,8 @@
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
 			float3 _Target;
-			float _Range, _Height, _Speed, _GrowRangeMin, _GrowRangeMax;
+			float _Range, _Height, _Radius, _Speed, _GrowRangeMin, _GrowRangeMax;
 
-			#define TAU 6.28
-			
 			v2f vert (appdata v)
 			{
 				v2f o;
