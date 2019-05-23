@@ -10,6 +10,7 @@ public class Particles : MonoBehaviour
 {
 	public ComputeShader compute;
 	public Material material;
+	public Transform target;
 	public int particleCount = 100000;
 	public float _Radius = 0.1f;
 	public float _Speed = 0.1f;
@@ -34,7 +35,9 @@ public class Particles : MonoBehaviour
 		}
 		
 		// Create mesh
-		Mesh mesh = Geometry.Particles(vertices);
+		int sliceX = 2;
+		int sliceY = 1;
+		Mesh mesh = Geometry.Particles(vertices, null, null, sliceX, sliceY);
 		mesh.bounds = new Bounds(Vector3.zero, Vector3.one * 100f);
 		gameObject.AddComponent<MeshFilter>().mesh = mesh;
 		gameObject.AddComponent<MeshRenderer>().material = material;
@@ -63,6 +66,7 @@ public class Particles : MonoBehaviour
 		SetFloat("_BlendGravity", _BlendGravity);
 		SetFloat("_BlendTarget", _BlendTarget);
 		SetFloat("_TimeDelta", Time.deltaTime);
+		SetVector("_Target", target.position);
 		SetMatrix("_MatrixWorld", transform.localToWorldMatrix);
 		SetMatrix("_MatrixLocal", transform.worldToLocalMatrix);
 

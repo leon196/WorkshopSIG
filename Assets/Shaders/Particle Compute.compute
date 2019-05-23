@@ -8,6 +8,7 @@ struct ParticleData { float3 position, velocity, seed; };
 RWStructuredBuffer<ParticleData> _Particles;
 
 uniform float _Count, _Radius, _TimeElapsed, _TimeDelta, _Speed, _Friction, _NoiseScale, _BlendCurl, _BlendGravity, _BlendTarget;
+uniform float3 _Target;
 uniform float4x4 _MatrixWorld, _MatrixLocal;
 
 
@@ -17,21 +18,24 @@ void particle (uint3 id : SV_DispatchThreadID)
 	ParticleData particle = _Particles[id.x];
 	float3 position = particle.position;
 	float3 velocity = particle.velocity;
-	float3 target = float3(0,0,0);
+	float3 target = mul(_MatrixLocal, float4(_Target, 1)).xyz;
 	float3 offset = float3(0,0,0);
 
 	float3 follow = float3(0,0,0);
 	float3 avoid = float3(0,0,0);
-	float collideRadius = .01;
+	float collideRadius = .5;
+	float followRadius = .3;
 	for (float index = _Count; index > 0.0; --index) {
-		if (index != id.x) {
-			float3 other = _Particles[index].position;
-			float dist = length(position - other);
+		float3 other = _Particles[index].position;
+		float dist = length(position - other);
+		if (dist > .01) {
 			float3 dir = normalize(position - other);
-			avoid -= dir * smoothstep(collideRadius*2., collideRadius, dist);
+			avoid += dir * smoothstep(collideRadius*2., collideRadius, dist) / dist;
+			follow += _Particles[index].velocity * smoothstep(followRadius*2., followRadius, dist) / dist;
 		}
 	}
-	offset += avoid;
+	offset += avoid * .1;
+	offset += follow * .1;
 
 	// Curl 
 	float3 seed = position * _NoiseScale + particle.seed;

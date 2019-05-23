@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Filter
-  m_Shader: {fileID: 4800000, guid: e764c3c3571e0cb41876db524e45a22a, type: 3}
+  m_Shader: {fileID: 4800000, guid: 7e2871a1bbdf17a49bfa90cc69afdcaf, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -55,6 +55,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _AberationStrength: 0
     - _BumpScale: 1
     - _Count: 10
     - _Cutoff: 0.5
@@ -68,6 +69,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Range: 1
+    - _ShakeStrength: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

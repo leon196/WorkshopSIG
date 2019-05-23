@@ -70,10 +70,14 @@
 				float y = v.uv.y * 0.5 + 0.5;
 
 				// float grow = smoothstep(_GrowRangeMin, _GrowRangeMax, length(o.vertex.xyz-_Target));
-				float grow = 1.0-tex2Dlod(_GrassMap, float4(uv, 0, 0)).r;
+				float grow = 0.5 + 0.5 * (1.0-tex2Dlod(_GrassMap, float4(uv, 0, 0)).r);
+				// float displace = 1.0-tex2Dlod(_GrassMap, float4(uv, 0, 0)).r;
 
 				a = TAU * noiseIQ(o.vertex.xyz * 4.);
-				o.vertex.xz += float2(cos(a),sin(a)) * y * .2 * grow;
+				o.vertex.xz += float2(cos(a),sin(a)) * y * .2;
+
+				// float2 dir = normalize(cross())
+				// o.vertex.xz += normalize()
 
 				// stretch quad (billboard)
 				float3 forward = normalize(_WorldSpaceCameraPos - o.vertex.xyz);

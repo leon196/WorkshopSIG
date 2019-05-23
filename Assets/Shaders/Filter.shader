@@ -29,8 +29,10 @@
 
 				fixed4 col = tex2D(_MainTex, uv);
 
-				float2 p = uv;
+				
 
+				// God's Ray
+				float2 p = uv;
 				for (float index = _Count; index > 0; --index) {
 					// center uv
 					p = p * 2. - 1.;

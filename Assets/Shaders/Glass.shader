@@ -3,6 +3,7 @@
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
+		_Strength ("Strength", Float) = 0.1
 	}
 	SubShader
 	{
@@ -36,6 +37,7 @@
 
 			sampler2D _MainTex, _BackgroundTexture;
 			float4 _MainTex_ST;
+			float _Strength;
 			
 			v2f vert (appdata v)
 			{
@@ -52,7 +54,7 @@
 				// sample the texture
 				float4 uv = i.grabPos;
 				float angle = tex2D(_MainTex, i.uv).r * 3.1415 * 2.;
-				uv.xy += float2(cos(angle),sin(angle)) * 0.1;
+				uv.xy += float2(cos(angle),sin(angle)) * _Strength;
 				fixed4 col = tex2Dproj(_BackgroundTexture, uv);
 				return col;
 			}
